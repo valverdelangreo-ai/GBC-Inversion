@@ -1,0 +1,39 @@
+name: Construir APK Android
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Preparar proyecto Android
+        run: npx expo prebuild --platform android
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Compilar APK
+        working-directory: android
+        run: ./gradlew assembleRelease
+
+      - name: Subir APK terminada
+        uses: actions/upload-artifact@v3
+        with:
+          name: GBC-Inversion-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
+          
