@@ -1,1 +1,13 @@
-JSON
+
+{
+  "expo": {
+    "name": "GBC Inversión",
+    "slug": "gbc-inversion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.inversion.gbc"
+    }
+  }
+}
