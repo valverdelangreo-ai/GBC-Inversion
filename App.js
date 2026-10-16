@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 // Sustituye esto por tu API Key real de Financial Modeling Prep
-const API_KEY = '68d9e4555dd64704b9770560fb6d880f';
+const API_KEY = 'oN2GDy2pF5GflIQhEeVGuPjM1HnTVy4m';
 
 // Tu base de datos local inicial (Valor Razonable y Margen de Seguridad dictados por ti)
 const LOCAL_PORTFOLIO = [
