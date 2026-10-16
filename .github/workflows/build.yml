@@ -18,6 +18,12 @@ jobs:
       - name: Instalar dependencias
         run: npm install
 
+      - name: Generar iconos por defecto
+        run: |
+          npx create-expo-app temp-app --template blank
+          cp -r temp-app/assets ./
+          rm -rf temp-app
+
       - name: Preparar proyecto Android
         run: npx expo prebuild --platform android
 
