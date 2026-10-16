@@ -29,11 +29,11 @@ jobs:
 
       - name: Compilar APK
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug
 
       - name: Subir APK terminada
         uses: actions/upload-artifact@v4
         with:
           name: GBC-Inversion-APK
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           
