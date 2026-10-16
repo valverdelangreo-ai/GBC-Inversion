@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 // Sustituye esto por tu API Key real de Financial Modeling Prep
-const API_KEY = 'TU_API_KEY_AQUI';68d9e4555dd64704b9770560fb6d880f
+const API_KEY = '68d9e4555dd64704b9770560fb6d880f;
 
 // Tu base de datos local inicial (Valor Razonable y Margen de Seguridad dictados por ti)
 const LOCAL_PORTFOLIO = [
@@ -154,4 +154,3 @@ const styles = StyleSheet.create({
   statusBadge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 4, borderWidth: 1 },
   statusText: { fontSize: 11, fontWeight: '900', letterSpacing: 1 }
 });
-      
