@@ -42,8 +42,8 @@ jobs:
         working-directory: android
         run: |
           export BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | tail -1)
-          $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks app/debug.keystore --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey app/build/outputs/apk/release/app-release-unsigned.apk
-          mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/GBC-Inversion.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks app/debug.keystore --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey app/build/outputs/apk/release/app-release.apk
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/GBC-Inversion.apk
 
       - name: Subir APK terminada
         uses: actions/upload-artifact@v4
