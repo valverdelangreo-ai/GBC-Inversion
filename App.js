@@ -1,14 +1,73 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 
-const MOCK_DATA = [
-  { id: '1', ticker: 'MSFT', name: 'Microsoft Corp.', price: 335.20, fairValue: 290.00, marginOfSafety: 20, status: 'VIGILANCIA', distance: '+15.5%' },
-  { id: '2', ticker: 'GOOGL', name: 'Alphabet Inc.', price: 125.40, fairValue: 150.00, marginOfSafety: 25, status: 'EN ZONA', distance: '-4.2%' },
-  { id: '3', ticker: 'V', name: 'Visa Inc.', price: 240.10, fairValue: 245.00, marginOfSafety: 15, status: 'CONFIRMAR', distance: '-1.5%' },
-  { id: '4', ticker: 'TSLA', name: 'Tesla Inc.', price: 180.50, fairValue: 140.00, marginOfSafety: 30, status: 'PELIGRO', distance: '+28.9%' }
+// Sustituye esto por tu API Key real de Financial Modeling Prep
+const API_KEY = 'TU_API_KEY_AQUI';
+
+// Tu base de datos local inicial (Valor Razonable y Margen de Seguridad dictados por ti)
+const LOCAL_PORTFOLIO = [
+  { id: '1', ticker: 'MSFT', name: 'Microsoft Corp.', fairValue: 310.00, marginOfSafety: 15 },
+  { id: '2', ticker: 'GOOGL', name: 'Alphabet Inc.', fairValue: 145.00, marginOfSafety: 20 },
+  { id: '3', ticker: 'V', name: 'Visa Inc.', fairValue: 260.00, marginOfSafety: 10 },
+  { id: '4', ticker: 'TSLA', name: 'Tesla Inc.', fairValue: 150.00, marginOfSafety: 30 }
 ];
 
 export default function App() {
+  const [empresas, setEmpresas] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  const calcularGBC = (precioActual, fairValue, marginOfSafety) => {
+    const precioObjetivo = fairValue * (1 - marginOfSafety / 100);
+    const distancia = ((precioActual - precioObjetivo) / precioObjetivo) * 100;
+    
+    let status = 'REVISAR';
+    if (distancia <= 0) status = 'EN ZONA';
+    else if (distancia > 0 && distancia <= 5) status = 'VIGILANCIA';
+    else if (distancia > 5 && distancia <= 15) status = 'CONFIRMAR';
+    else if (distancia > 25) status = 'PELIGRO';
+
+    return {
+      distanciaStr: distancia > 0 ? `+${distancia.toFixed(1)}%` : `${distancia.toFixed(1)}%`,
+      status
+    };
+  };
+
+  const fetchCotizaciones = async () => {
+    try {
+      const tickers = LOCAL_PORTFOLIO.map(emp => emp.ticker).join(',');
+      const url = `https://financialmodelingprep.com/api/v3/quote/${tickers}?apikey=${API_KEY}`;
+      
+      const response = await fetch(url);
+      const dataApi = await response.json();
+
+      if (dataApi && dataApi.length > 0) {
+        const empresasActualizadas = LOCAL_PORTFOLIO.map(empresaLocal => {
+          const datosMercado = dataApi.find(api => api.symbol === empresaLocal.ticker);
+          const precioEnVivo = datosMercado ? datosMercado.price : 0;
+          const analisisGBC = calcularGBC(precioEnVivo, empresaLocal.fairValue, empresaLocal.marginOfSafety);
+
+          return {
+            ...empresaLocal,
+            price: precioEnVivo,
+            distance: analisisGBC.distanciaStr,
+            status: analisisGBC.status
+          };
+        });
+        setEmpresas(empresasActualizadas);
+      }
+    } catch (error) {
+      console.error("Error conectando a la API:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCotizaciones();
+    const intervalo = setInterval(fetchCotizaciones, 60000); // Actualiza cada minuto
+    return () => clearInterval(intervalo);
+  }, []);
+
   const getStatusStyle = (status) => {
     switch(status) {
       case 'EN ZONA': return { bg: '#0A2E13', text: '#39FF14', border: '#1A5925' }; 
@@ -28,7 +87,7 @@ export default function App() {
             <Text style={styles.ticker}>{item.ticker}</Text>
             <Text style={styles.companyName}>{item.name}</Text>
           </View>
-          <Text style={styles.price}>${item.price.toFixed(2)}</Text>
+          <Text style={styles.price}>${item.price ? item.price.toFixed(2) : '0.00'}</Text>
         </View>
         <View style={styles.divider} />
         <View style={styles.metricsRow}>
@@ -38,7 +97,7 @@ export default function App() {
           </View>
           <View style={styles.metric}>
             <Text style={styles.metricLabel}>DISTANCIA</Text>
-            <Text style={[styles.metricValue, { color: item.distance.includes('-') ? '#39FF14' : '#FF0033' }]}>
+            <Text style={[styles.metricValue, { color: item.distance?.includes('-') ? '#39FF14' : '#FF0033' }]}>
               {item.distance}
             </Text>
           </View>
@@ -50,6 +109,15 @@ export default function App() {
     );
   };
 
+  if (cargando) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#39FF14" />
+        <Text style={{color: '#888', marginTop: 10}}>Conectando al mercado...</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
@@ -58,7 +126,7 @@ export default function App() {
         <Text style={styles.headerSubtitle}>RADAR DE INVERSIÓN</Text>
       </View>
       <FlatList
-        data={MOCK_DATA}
+        data={empresas}
         keyExtractor={item => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.listPadding}
