@@ -1,4 +1,3 @@
-
 {
   "expo": {
     "name": "GBC Inversión",
@@ -8,6 +7,9 @@
     "userInterfaceStyle": "dark",
     "android": {
       "package": "com.inversion.gbc"
+    },
+    "splash": {
+      "backgroundColor": "#000000"
     }
   }
 }
