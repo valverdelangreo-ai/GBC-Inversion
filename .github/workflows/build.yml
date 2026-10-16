@@ -34,13 +34,20 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Compilar APK
+      - name: Compilar APK (Versión Producción)
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
+
+      - name: Firmar APK para Android
+        working-directory: android
+        run: |
+          export BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools | tail -1)
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks app/debug.keystore --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey app/build/outputs/apk/release/app-release-unsigned.apk
+          mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/GBC-Inversion.apk
 
       - name: Subir APK terminada
         uses: actions/upload-artifact@v4
         with:
           name: GBC-Inversion-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/release/GBC-Inversion.apk
           
