@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 
 const API_KEY = 'oN2GDy2pF5GflIQhEeVGuPjM1HnTVy4m';
-const SYMBOLS = ['AAPL', 'TSLA', 'AMZN', 'MSFT', 'GOOGL'];
+// Símbolos que suelen funcionar en el plan gratuito
+const SYMBOLS = ['AAPL', 'TSLA', 'AMZN'];
 
 export default function App() {
   const [quotes, setQuotes] = useState([]);
@@ -23,18 +24,30 @@ export default function App() {
   const fetchQuotes = useCallback(async () => {
     try {
       setError(null);
-      const symbols = SYMBOLS.join(',');
-      const url = `https://financialmodelingprep.com/stable/quote?symbol=${symbols}&apikey=${API_KEY}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`HTTP ${response.status}: ${text.substring(0, 120)}`);
+      const results = [];
+      const errors = [];
+
+      for (const symbol of SYMBOLS) {
+        try {
+          const url = `https://financialmodelingprep.com/stable/quote?symbol=${symbol}&apikey=${API_KEY}`;
+          const response = await fetch(url);
+          if (!response.ok) {
+            const text = await response.text();
+            errors.push(`${symbol}: HTTP ${response.status}`);
+            continue;
+          }
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            results.push(data[0]);
+          }
+        } catch (e) {
+          errors.push(`${symbol}: ${e.message}`);
+        }
       }
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setQuotes(data);
-      } else {
-        setQuotes([]);
+
+      setQuotes(results);
+      if (results.length === 0 && errors.length > 0) {
+        setError(errors.join('\n'));
       }
     } catch (e) {
       setError(e.message || 'Error de red');
@@ -94,7 +107,7 @@ export default function App() {
           </View>
         )}
 
-        {error && !loading && (
+        {error && !loading && quotes.length === 0 && (
           <View style={styles.errorBox}>
             <Text style={styles.errorTitle}>No se pudieron cargar los datos</Text>
             <Text style={styles.errorMsg}>{error}</Text>
@@ -137,7 +150,7 @@ export default function App() {
               );
             })}
             <Text style={styles.footerNote}>
-              Datos de Financial Modeling Prep · Plan gratuito limitado a símbolos seleccionados
+              Datos de Financial Modeling Prep · Plan gratuito (símbolos limitados)
             </Text>
           </>
         )}
