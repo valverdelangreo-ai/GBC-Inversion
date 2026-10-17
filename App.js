@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, StatusBar, ScrollView } from 'react-native';
+const url = `https://financialmodelingprep.com/stable/quote?symbol=AAPL&apikey=${API_KEY}`;
 
-const API_KEY = 'oN2GDy2pF5GflIQhEeVGuPjM1HnTVy4m';
 
 export default function App() {
   const [log, setLog] = useState("Iniciando sistema de diagnóstico...\n");
