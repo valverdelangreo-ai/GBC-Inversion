@@ -14,7 +14,8 @@ export default function App() {
         addLog(`1. Llave configurada: ${API_KEY.substring(0, 5)}...`);
         addLog("2. Construyendo URL de petición a Financial Modeling Prep...");
         
-        const url = `https://financialmodelingprep.com/api/v3/quote/MSFT,GOOGL?apikey=${API_KEY}`;
+      const url = `https://financialmodelingprep.com/stable/quote?symbol=MSFT,GOOGL&apikey=${API_KEY}`;
+                                                                                    
         
         addLog("3. Conectando al servidor...");
         const response = await fetch(url);
